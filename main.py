@@ -4,7 +4,7 @@ from api.app import app
 
 
 def run_server():
-    uvicorn.run(app, host="0.0.0.0", port=8000, limit_max_requests=100000000)
+    uvicorn.run(app, host="0.0.0.0", port=8000)
 
 
 if __name__ == "__main__":

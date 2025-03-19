@@ -22,14 +22,6 @@ app.add_middleware(
 app.mount("/static", StaticFiles(directory=DIR_STATIC), name="static")
 
 
-@app.middleware("http")
-async def increase_body_limit(request: Request, call_next):
-    request.state.body = await request.body()  # Читаем тело запроса полностью
-    response = await call_next(request)
-
-    return response
-
-
 @app.get("/")
 def root():
     return {
