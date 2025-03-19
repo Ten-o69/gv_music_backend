@@ -11,7 +11,7 @@ class TrackSchema(BaseModel):
     duration: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class TrackListResponse(BaseModel):
