@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.requests import Request
 from fastapi.middleware.cors import CORSMiddleware
 
-from .routers.v1 import v1_router
+from .routers import api_router
 
 app = FastAPI(
     description="Плейер для говна",
@@ -32,4 +32,4 @@ def root():
         "message": "API work!",
     }
 
-app.include_router(v1_router)
+app.include_router(api_router)
