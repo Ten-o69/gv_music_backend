@@ -9,4 +9,5 @@ DIR_MUSIC_COVER = DIR_STATIC / "music_cover"
 
 # url
 URL_MUSIC = "static/music/"
+URL_MUSIC_STREAM = "api/v1/tracks/"
 URL_MUSIC_COVER = "static/music_cover/"

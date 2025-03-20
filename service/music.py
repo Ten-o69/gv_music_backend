@@ -8,7 +8,7 @@ from mutagen.id3 import ID3, TIT2, TPE1
 from common.constants import (
     DIR_MUSIC,
     DIR_MUSIC_COVER,
-    URL_MUSIC,
+    URL_MUSIC_STREAM,
     URL_MUSIC_COVER,
 )
 from .utils import get_mp3_cover_bytes
@@ -42,12 +42,15 @@ def get_music_list(
         minutes, seconds = divmod(music.seconds, 60)
         path_music_list.append(music.path)
 
+        cover_path = Path(music.cover_path if music.cover_path else "")
+        cover_url = f"{base_url}{URL_MUSIC_COVER}{cover_path.stem + cover_path.suffix}"
+
         music_list_json.append({
             "id": music.id,
             "title": music.name,
             "artist": music.author,
-            "url": f"{base_url}{URL_MUSIC}{Path(music.path).name}",
-            "cover_url": f"{base_url}{URL_MUSIC_COVER}{Path(music.cover_path if music.cover_path else "").name}",
+            "url": f"{base_url}{URL_MUSIC_STREAM}{music.id}",
+            "cover_url": cover_url,
             "duration": f"{minutes}:{seconds:02d}",
         })
 
