@@ -8,6 +8,7 @@ class TrackSchema(BaseModel):
     title: Optional[str] = None
     artist: Optional[str] = None
     url: HttpUrl
+    cover_url: Optional[HttpUrl] = None
     duration: int
 
     class Config:

@@ -6,7 +6,7 @@ from mutagen.id3 import APIC, ID3
 from PIL import Image
 
 
-def get_mp3_cover_base64(file_path: str, output_quality: int = 50) -> str | None:
+def get_mp3_cover_bytes(file_path: str, output_quality: int = 50) -> bytes | None:
     """Возвращает сжатую обложку в формате base64"""
 
     audio = MP3(file_path, ID3=ID3)
@@ -26,6 +26,6 @@ def get_mp3_cover_base64(file_path: str, output_quality: int = 50) -> str | None
             image.convert("RGB").save(output_io, format="JPEG", quality=output_quality)
 
             # Кодируем в base64
-            return base64.b64encode(output_io.getvalue()).decode('utf-8')
+            return output_io.getvalue()
 
     return None  # Если обложки нет

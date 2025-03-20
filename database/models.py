@@ -18,5 +18,5 @@ class Music(Base):
     name = Column(String(60), nullable=True)
     author = Column(String(60), nullable=True)
     path = Column(String(255), nullable=False)
-    cover_base64 = Column(Text, nullable=True)
+    cover_path = Column(Text, nullable=True)
     seconds = Column(Integer, nullable=False)

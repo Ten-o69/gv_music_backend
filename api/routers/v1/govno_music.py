@@ -104,9 +104,12 @@ def govno_music_get_stream(
 
 
 @router.post("/")
-def govno_music_upload(music_file: UploadFile = File(...)):
+def govno_music_upload(
+        music_file: UploadFile = File(...),
+        db: Session = Depends(get_db)
+):
     music_file_binary = music_file.file.read()
 
-    save_music(music_file_binary)
+    save_music(db=db, file_binary=music_file_binary)
 
     return Response(status_code=200, content="OK")
