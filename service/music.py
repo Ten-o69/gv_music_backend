@@ -11,6 +11,7 @@ from common.constants import (
     URL_MUSIC_STREAM,
     URL_MUSIC_COVER,
 )
+from common.helpers import get_relative_path
 from .utils import get_mp3_cover_bytes
 from database.models import Music
 from database.config import SessionLocal
@@ -61,7 +62,11 @@ def save_music(db: SessionLocal, file_binary: bytes) -> None:
     path_to_music = DIR_MUSIC / (str(uuid4()) + ".mp3")
     path_to_music_cover = DIR_MUSIC_COVER / (str(uuid4()) + ".jpg")
 
-    with path_to_music.open("wb") as file:
+    # Получение относительных путей
+    path_to_music = get_relative_path(path_to_music)
+    path_to_music_cover = get_relative_path(path_to_music_cover)
+
+    with open(path_to_music, "wb") as file:
         file.write(file_binary)
 
     try:
@@ -84,8 +89,8 @@ def save_music(db: SessionLocal, file_binary: bytes) -> None:
         audio_artist = audio.tags.get("TPE1", "Unknown Artist")
 
     else:
-        audio_title = None
-        audio_artist = None
+        audio_title = "Unknown Title"
+        audio_artist = "Unknown Artist"
 
     music = Music(
         name=audio_title.text[0] if isinstance(audio_title, TIT2) else audio_title,
