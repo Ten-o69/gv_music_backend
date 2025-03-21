@@ -29,7 +29,8 @@ MANIFEST
 *.db
 alembic.ini
 migrations/versions/
-static/
+static/music
+static/music_cover
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
