@@ -32,6 +32,10 @@ migrations/versions/
 static/music
 static/music_cover
 .env.*
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
