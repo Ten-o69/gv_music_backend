@@ -32,7 +32,7 @@ migrations/versions/
 static/music
 static/music_cover
 .env.*
-__pycache__/
+*/__pycache__/
 *.pyc
 *.pyo
 *.pyd
