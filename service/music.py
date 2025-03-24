@@ -13,7 +13,7 @@ from common.constants import (
 )
 from common.helpers import get_relative_path
 from .utils import get_mp3_cover_bytes
-from database.models import Music
+from database.models import Track
 from database.config import SessionLocal
 
 
@@ -28,19 +28,19 @@ def get_music_list(
         get_all: bool = False,
 ) -> tuple[list[dict[str, str | int]], int, list[str]]:
     if not get_all:
-        music_list = db.query(Music).offset(offset).limit(limit).all()
+        music_list = db.query(Track).offset(offset).limit(limit).all()
 
     else:
-        music_list = db.query(Music).all()
+        music_list = db.query(Track).all()
 
-    total_tracks = db.query(Music).count()
+    total_tracks = db.query(Track).count()
 
     music_list_json = []
     path_music_list = []
-    music: Music
+    music: Track
 
     for music in music_list:
-        minutes, seconds = divmod(music.seconds, 60)
+        minutes, seconds = divmod(music.duration, 60)
         path_music_list.append(music.path)
 
         cover_path = Path(music.cover_path if music.cover_path else "")
@@ -48,8 +48,8 @@ def get_music_list(
 
         music_list_json.append({
             "id": music.id,
-            "title": music.name,
-            "artist": music.author,
+            "title": music.title,
+            "artist": music.artist,
             "url": f"{base_url}{URL_MUSIC_STREAM}{music.id}",
             "cover_url": cover_url,
             "duration": f"{minutes}:{seconds:02d}",
@@ -61,10 +61,6 @@ def get_music_list(
 def save_music(db: SessionLocal, file_binary: bytes) -> None:
     path_to_music = DIR_MUSIC / (str(uuid4()) + ".mp3")
     path_to_music_cover = DIR_MUSIC_COVER / (str(uuid4()) + ".jpg")
-
-    # Получение относительных путей
-    path_to_music = get_relative_path(path_to_music)
-    path_to_music_cover = get_relative_path(path_to_music_cover)
 
     with open(path_to_music, "wb") as file:
         file.write(file_binary)
@@ -92,12 +88,16 @@ def save_music(db: SessionLocal, file_binary: bytes) -> None:
         audio_title = "Unknown Title"
         audio_artist = "Unknown Artist"
 
-    music = Music(
-        name=audio_title.text[0] if isinstance(audio_title, TIT2) else audio_title,
-        author=audio_artist.text[0] if isinstance(audio_artist, TPE1) else audio_artist,
-        path=str(path_to_music),
-        cover_path=str(path_to_music_cover),
-        seconds=audio_duration,
+    # Получение относительных путей
+    path_to_music = get_relative_path(path_to_music)
+    path_to_music_cover = get_relative_path(path_to_music_cover)
+
+    music = Track(
+        title=audio_title.text[0] if isinstance(audio_title, TIT2) else audio_title,
+        artist=audio_artist.text[0] if isinstance(audio_artist, TPE1) else audio_artist,
+        path=path_to_music,
+        cover_path=path_to_music_cover,
+        duration=audio_duration,
     )
 
     db.add(music)

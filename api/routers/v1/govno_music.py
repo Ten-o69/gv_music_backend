@@ -22,6 +22,9 @@ from service.music import (
 from ..utils import iter_file
 from database import get_db
 from schemas.music import TrackListResponse
+from common.constants import (
+    DIR_DATA,
+)
 
 
 router = APIRouter(prefix="/tracks", tags=["tracks"])
@@ -79,7 +82,8 @@ def govno_music_get_stream(
 
     for num, music in enumerate(track_list):
         if music["id"] == track_id:
-            file_size = os.path.getsize(path_to_tracks[num])
+            path_to_track = DIR_DATA / path_to_tracks[num]
+            file_size = os.path.getsize(path_to_track)
 
             if range_header:
                 # Если запрос с Range-заголовком, обрабатывает его
@@ -87,7 +91,7 @@ def govno_music_get_stream(
                 start = int(range_value[0]) if range_value[0] else 0
                 end = int(range_value[1]) if len(range_value) > 1 and range_value[1] else file_size - 1
 
-                response = StreamingResponse(iter_file(path_to_tracks[num], start, end + 1),
+                response = StreamingResponse(iter_file(path_to_track, start, end + 1),
                                              status_code=206, media_type="audio/mpeg")
                 response.headers.update({
                     "Content-Range": f"bytes {start}-{end}/{file_size}",
@@ -97,7 +101,7 @@ def govno_music_get_stream(
 
                 return response
 
-            return StreamingResponse(iter_file(path_to_tracks[num], 0, file_size),
+            return StreamingResponse(iter_file(path_to_track, 0, file_size),
                                      media_type="audio/mpeg")
 
     return Response(status_code=404, content="No music found by index")

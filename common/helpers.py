@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from .constants import (
-    BASE_DIR,
+    DIR_DATA,
 )
 
 
@@ -13,4 +13,4 @@ def get_relative_path(path: Path) -> str:
     :return: Возвращает строку с преобразованным путём
     """
 
-    return path.relative_to(BASE_DIR).as_posix()
+    return path.relative_to(DIR_DATA).as_posix()
