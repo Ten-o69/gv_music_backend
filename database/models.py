@@ -12,11 +12,11 @@ class User(Base):
     password_hash = Column(String(64), nullable=False)
 
 
-class Music(Base):
-    __tablename__ = 'music'
+class Track(Base):
+    __tablename__ = 'tracks'
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    name = Column(String(60), nullable=True)
-    author = Column(String(60), nullable=True)
+    title = Column(String(60), nullable=True)
+    artist = Column(String(60), nullable=True)
     path = Column(String(255), nullable=False)
     cover_path = Column(Text, nullable=True)
-    seconds = Column(Integer, nullable=False)
+    duration = Column(Integer, nullable=False)
