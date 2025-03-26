@@ -27,8 +27,6 @@ share/python-wheels/
 MANIFEST
 .idea/
 *.db
-alembic.ini
-migrations/versions/
 static/music
 static/music_cover
 .env.*
