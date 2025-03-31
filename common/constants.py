@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from ten_utils.log import Logger
 
 
+# base
 env_mode = os.getenv("ENV", "dev")
 logger = Logger(__name__, level=3)
 load_dotenv(f".env.{env_mode}")
@@ -29,4 +30,12 @@ URL_MUSIC_STREAM = "api/v1/tracks/"
 URL_MUSIC_COVER = "static/music_cover/"
 
 # database
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = os.getenv("DATABASE_URL", None)
+
+# api
+ALLOW_HOSTS = os.getenv("ALLOW_HOSTS", None)
+if ALLOW_HOSTS:
+    ALLOW_HOSTS = ALLOW_HOSTS.split(",")
+
+elif not ALLOW_HOSTS:
+    logger.critical("ALLOW_HOSTS environment variable is not set")
