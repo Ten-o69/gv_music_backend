@@ -1,10 +1,14 @@
 from fastapi import FastAPI
 from fastapi.requests import Request
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.responses import JSONResponse
 from starlette.staticfiles import StaticFiles
 
 from .routers import api_router
-from common.constants import DIR_STATIC
+from common.constants import (
+    DIR_STATIC,
+    ALLOW_HOSTS,
+)
 
 app = FastAPI(
     description="Плейер для говна",
@@ -13,19 +17,33 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Можно указать конкретные домены, например: ["https://your-ngrok-url.ngrok.io"]
+    allow_origins=["http://212.192.248.169", "http://localhost", "http://127.0.0.1"],
     allow_credentials=True,
-    allow_methods=["*"],  # Разрешаем все методы (GET, POST, PUT и т.д.)
-    allow_headers=["*"],  # Разрешаем все заголовки
+    allow_methods=["GET", "POST"],  # Разрешаем все методы (GET, POST, PUT и т.д.)
 )
 
 app.mount("/static", StaticFiles(directory=DIR_STATIC), name="static")
 
 
+@app.middleware("http")
+async def restrict_access_to_hosts(request: Request, call_next):
+    client_host = request.client.host
+
+    if client_host not in ALLOW_HOSTS:
+        return JSONResponse(
+            status_code=403,
+            content={
+                "detail": f"Access denied for host: {client_host}",
+            }
+        )
+
+    return await call_next(request)
+
+
 @app.get("/")
 def root():
     return {
-        "message": "API work!",
+        "detail": "API work!",
     }
 
 app.include_router(api_router)
