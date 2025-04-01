@@ -7,6 +7,8 @@ from starlette.staticfiles import StaticFiles
 from .routers import api_router
 from common.constants import (
     DIR_STATIC,
+    DIR_MUSIC,
+    DIR_MUSIC_COVER,
     ALLOW_HOSTS,
 )
 
@@ -23,6 +25,8 @@ app.add_middleware(
 )
 
 app.mount("/static", StaticFiles(directory=DIR_STATIC), name="static")
+app.mount("/music", StaticFiles(directory=DIR_MUSIC), name="static_music")
+app.mount("/music_cover", StaticFiles(directory=DIR_MUSIC_COVER), name="static_music_cover")
 
 
 @app.middleware("http")

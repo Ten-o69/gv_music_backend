@@ -25,9 +25,9 @@ DIR_MUSIC_COVER = DIR_DATA / "music_cover"
 DIR_STATIC = BASE_DIR / "static"
 
 # url
-URL_MUSIC = "static/music/"
+URL_MUSIC = "music/"
+URL_MUSIC_COVER = "music_cover/"
 URL_MUSIC_STREAM = "api/v1/tracks/"
-URL_MUSIC_COVER = "static/music_cover/"
 
 # database
 DATABASE_URL = os.getenv("DATABASE_URL", None)
@@ -37,5 +37,5 @@ ALLOW_HOSTS = os.getenv("ALLOW_HOSTS", None)
 if ALLOW_HOSTS:
     ALLOW_HOSTS = ALLOW_HOSTS.split(",")
 
-elif not ALLOW_HOSTS:
+else:
     logger.critical("ALLOW_HOSTS environment variable is not set")
