@@ -1,5 +1,6 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
+**/__pycache__/
 *.py[cod]
 *$py.class
 
@@ -30,9 +31,6 @@ MANIFEST
 static/music
 static/music_cover
 .env.*
-__pycache__/
-**/__pycache__/
-*.py[cod]
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
