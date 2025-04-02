@@ -9,7 +9,8 @@ from common.constants import (
     DIR_STATIC,
     DIR_MUSIC,
     DIR_MUSIC_COVER,
-    ALLOW_HOSTS,
+    API_CORS_HOSTS,
+    API_ALLOW_HOSTS,
 )
 
 app = FastAPI(
@@ -19,7 +20,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://212.192.248.169", "http://localhost", "http://127.0.0.1"],
+    allow_origins=API_CORS_HOSTS,
     allow_credentials=True,
     allow_methods=["GET", "POST"],  # Разрешаем все методы (GET, POST, PUT и т.д.)
 )
@@ -33,7 +34,7 @@ app.mount("/music_cover", StaticFiles(directory=DIR_MUSIC_COVER), name="static_m
 async def restrict_access_to_hosts(request: Request, call_next):
     client_host = request.client.host
 
-    if client_host not in ALLOW_HOSTS:
+    if client_host not in API_ALLOW_HOSTS:
         return JSONResponse(
             status_code=403,
             content={

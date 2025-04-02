@@ -33,9 +33,16 @@ URL_MUSIC_STREAM = "api/v1/tracks/"
 DATABASE_URL = os.getenv("DATABASE_URL", None)
 
 # api
-ALLOW_HOSTS = os.getenv("ALLOW_HOSTS", None)
-if ALLOW_HOSTS:
-    ALLOW_HOSTS = ALLOW_HOSTS.split(",")
+API_ALLOW_HOSTS = os.getenv("ALLOW_HOSTS", None)
+if API_ALLOW_HOSTS:
+    API_ALLOW_HOSTS = API_ALLOW_HOSTS.split(",")
 
 else:
     logger.critical("ALLOW_HOSTS environment variable is not set")
+
+API_CORS_HOSTS = os.getenv("API_CORS_HOSTS", None)
+if API_CORS_HOSTS:
+    API_CORS_HOSTS = API_CORS_HOSTS.split(",")
+
+else:
+    logger.critical("API_CORS_HOSTS environment variable is not set")
