@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from fastapi.requests import Request
 from fastapi.middleware.cors import CORSMiddleware
-from starlette.responses import JSONResponse
-from starlette.staticfiles import StaticFiles
+from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 from .routers import api_router
 from common.constants import (
@@ -32,7 +32,7 @@ app.mount("/music_cover", StaticFiles(directory=DIR_MUSIC_COVER), name="static_m
 
 @app.middleware("http")
 async def restrict_access_to_hosts(request: Request, call_next):
-    client_host = request.client.host
+    client_host = request.state.ip
 
     if client_host not in API_ALLOW_HOSTS:
         return JSONResponse(
@@ -43,6 +43,28 @@ async def restrict_access_to_hosts(request: Request, call_next):
         )
 
     return await call_next(request)
+
+
+@app.middleware("http")
+async def log_ip(request: Request, call_next):
+    print("Client IP from header:", request.headers.get("x-forwarded-for"))
+    print("Client IP resolved:", request.client.host)
+    return await call_next(request)
+
+
+@app.middleware("http")
+async def get_real_ip(request: Request, call_next):
+    forwarded_for = request.headers.get("x-forwarded-for")
+
+    if forwarded_for:
+        real_ip = forwarded_for.split(",")[0].strip()
+        request.state.ip = real_ip
+
+    else:
+        request.state.ip = request.client.host
+
+    response = await call_next(request)
+    return response
 
 
 @app.get("/")
