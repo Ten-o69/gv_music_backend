@@ -20,13 +20,13 @@ from database.config import SessionLocal
 logger = Logger(__name__, level=1)
 
 
-def get_music_list(
+def get_music_track_list(
         db: SessionLocal,
         base_url: str,
         offset: int = 0,
         limit: int = 100,
         get_all: bool = False,
-) -> tuple[list[dict[str, str | int]], int, list[str]]:
+) -> tuple[list[dict[str, str | int]], int]:
     if not get_all:
         music_list = db.query(Track).offset(offset).limit(limit).all()
 
@@ -34,14 +34,11 @@ def get_music_list(
         music_list = db.query(Track).all()
 
     total_tracks = db.query(Track).count()
-
     music_list_json = []
-    path_music_list = []
     music: Track
 
     for music in music_list:
         minutes, seconds = divmod(music.duration, 60)
-        path_music_list.append(music.path)
 
         cover_path = Path(music.cover_path if music.cover_path else "")
         cover_url = f"{base_url}{URL_MUSIC_COVER}{cover_path.stem + cover_path.suffix}"
@@ -55,10 +52,16 @@ def get_music_list(
             "duration": f"{minutes}:{seconds:02d}",
         })
 
-    return music_list_json, total_tracks, path_music_list
+    return music_list_json, total_tracks
 
 
-def save_music(db: SessionLocal, file_binary: bytes) -> None:
+def get_music_track(track_id: str, db: SessionLocal) -> Track | None:
+    track = db.query(Track).filter(Track.id == track_id).first()
+
+    return track
+
+
+def save_music_track(db: SessionLocal, file_binary: bytes) -> None:
     path_to_music = DIR_MUSIC / (str(uuid4()) + ".mp3")
     path_to_music_cover = DIR_MUSIC_COVER / (str(uuid4()) + ".jpg")
 
