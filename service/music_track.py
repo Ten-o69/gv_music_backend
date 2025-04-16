@@ -127,12 +127,12 @@ def save_music_track(db: SessionLocal, file_binary: bytes) -> None:
 
     # Extract metadata
     if audio and audio.tags:
-        audio_title = audio.tags.get("TIT2", "Unknown Title")
-        audio_artist = audio.tags.get("TPE1", "Unknown Artist")
+        audio_title = audio.tags.get("TIT2", None)
+        audio_artist = audio.tags.get("TPE1", None)
 
     else:
-        audio_title = "Unknown Title"
-        audio_artist = "Unknown Artist"
+        audio_title = None
+        audio_artist = None
 
     # Convert to relative paths for database storage
     path_to_track_music = get_relative_path(path_to_track_music)
