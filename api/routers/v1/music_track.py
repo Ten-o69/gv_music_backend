@@ -36,13 +36,13 @@ from service.music import (
 )
 from ..utils import iter_file
 from database import get_db
-from schemas.music import TrackListResponse
+from schemas.music_track import MusicTrackListResponse
 from common.constants import DIR_DATA
 
 router = APIRouter(prefix="/tracks", tags=["tracks"])
 
 
-@router.get("/", response_model=TrackListResponse)
+@router.get("/", response_model=MusicTrackListResponse)
 def get_music_tracks_list(
     request: Request,
     skip: int = Query(0, alias="offset"),
