@@ -110,7 +110,7 @@ def save_music_track(db: SessionLocal, file_binary: bytes) -> None:
     try:
         audio = MP3(str(path_to_track_music), ID3=ID3)
         audio_duration = int(audio.info.length)
-        audio_cover_base64 = get_mp3_cover_bytes(str(path_to_track_music))
+        audio_cover_base64 = get_mp3_cover_bytes(audio_obj=audio)
 
     except HeaderNotFoundError:
         audio = None
@@ -118,9 +118,12 @@ def save_music_track(db: SessionLocal, file_binary: bytes) -> None:
         audio_cover_base64 = None
 
     # Save cover art to file system
-    with open(path_to_track_music_cover, "wb") as file:
-        if audio_cover_base64:
-            file.write(audio_cover_base64)
+    if audio_cover_base64:
+        with open(path_to_track_music_cover, "wb") as file:
+                file.write(audio_cover_base64)
+
+    else:
+        path_to_track_music_cover = None
 
     # Extract metadata
     if audio and audio.tags:
@@ -133,7 +136,9 @@ def save_music_track(db: SessionLocal, file_binary: bytes) -> None:
 
     # Convert to relative paths for database storage
     path_to_track_music = get_relative_path(path_to_track_music)
-    path_to_track_music_cover = get_relative_path(path_to_track_music_cover)
+
+    if path_to_track_music_cover is not None:
+        path_to_track_music_cover = get_relative_path(path_to_track_music_cover)
 
     # Create Track object
     music = Track(
