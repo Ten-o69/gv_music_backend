@@ -1,5 +1,6 @@
 from uuid import uuid4
 from pathlib import Path
+import mimetypes
 
 from ten_utils.log import Logger
 from mutagen.mp3 import MP3, HeaderNotFoundError
@@ -53,8 +54,8 @@ def get_music_track_list(
 
     for music_track in music_track_list:
         music_track_cover_path = Path(music_track.cover_path if music_track.cover_path else "")
-        music_track_cover_url = (f"{base_url}{URL_MUSIC_COVER}"
-                                 f"{music_track_cover_path.stem + music_track_cover_path.suffix}")
+        music_track_cover_url = f"{base_url + URL_MUSIC_COVER + music_track_cover_path.name}"
+        mime_type, _ = mimetypes.guess_type(music_track.path)
 
         music_track_list_json.append({
             "id": music_track.id,
@@ -63,6 +64,7 @@ def get_music_track_list(
             "url": f"{base_url}{URL_MUSIC_STREAM}{music_track.id}",
             "cover_url": music_track_cover_url,
             "duration": music_track.duration,
+            "mime_type": mime_type,
         })
 
     return music_track_list_json, total_music_tracks
