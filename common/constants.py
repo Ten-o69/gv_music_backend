@@ -10,7 +10,17 @@ BASE_DIR = Path(__file__).parent.parent
 
 # env
 ENV_MODE = os.getenv("ENV", "dev")
-env_loader = EnvLoader(BASE_DIR / f".env.{ENV_MODE}")
+ENV_PATH = BASE_DIR / f".env.{ENV_MODE}"
+
+if ENV_MODE == "dev":
+    env_loader = EnvLoader(ENV_PATH)
+
+elif ENV_MODE == "prod":
+    env_loader = EnvLoader(ENV_PATH, getenv_mode=True)
+
+else:
+    raise ValueError(f"The environment variable 'ENV_MODE' is not set or is set incorrectly")
+
 
 # path/dir
 DIR_DATA = env_loader.load("DIR_DATA", Path)
