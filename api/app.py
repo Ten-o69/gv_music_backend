@@ -50,60 +50,6 @@ app.mount(
 )
 
 
-@app.middleware("http")
-async def restrict_access_to_hosts(request: Request, call_next):
-    """
-    Middleware to restrict access based on allowed client IPs.
-
-    Checks whether the client's resolved IP is in the list of allowed hosts.
-    If not, returns a 403 Forbidden response.
-    """
-    client_host = request.state.ip
-
-    if client_host not in API_ALLOW_HOSTS:
-        return JSONResponse(
-            status_code=403,
-            content={
-                "detail": f"Access denied for host: {client_host}",
-            }
-        )
-
-    return await call_next(request)
-
-
-@app.middleware("http")
-async def log_ip(request: Request, call_next):
-    """
-    Middleware to log client IP address.
-
-    Logs the IP from the "X-Forwarded-For" header and the resolved request IP.
-    Useful for debugging and tracking clients behind proxies.
-    """
-    logger.debug(f"Client IP from header: {request.headers.get('x-forwarded-for')}")
-    logger.debug(f"Client IP resolved: {request.client.host}")
-
-    return await call_next(request)
-
-
-@app.middleware("http")
-async def get_real_ip(request: Request, call_next):
-    """
-    Middleware to extract real client IP address.
-
-    Uses the "X-Forwarded-For" header if available to assign a
-    trusted `request.state.ip` value for use in other middleware.
-    """
-    forwarded_for = request.headers.get("x-forwarded-for")
-
-    if forwarded_for:
-        real_ip = forwarded_for.split(",")[0].strip()
-        request.state.ip = real_ip
-    else:
-        request.state.ip = request.client.host
-
-    return await call_next(request)
-
-
 @app.get("/")
 def root():
     """
