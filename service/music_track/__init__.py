@@ -3,8 +3,6 @@ from pathlib import Path
 import mimetypes
 
 from ten_utils.log import Logger
-from mutagen.mp3 import MP3, HeaderNotFoundError
-from mutagen.id3 import ID3, TIT2, TPE1
 
 from common.constants import (
     DIR_MUSIC,
@@ -13,9 +11,9 @@ from common.constants import (
     URL_MUSIC_COVER,
 )
 from common.helpers import get_relative_path
-from .utils import get_mp3_cover_bytes
 from database.models import Track
 from database.config import SessionLocal
+from .metadata import MusicTrackMetadata
 
 
 logger = Logger(__name__)
@@ -53,8 +51,13 @@ def get_music_track_list(
     music_track_list_json = []
 
     for music_track in music_track_list:
-        music_track_cover_path = Path(music_track.cover_path if music_track.cover_path else "")
-        music_track_cover_url = f"{base_url + URL_MUSIC_COVER + music_track_cover_path.name}"
+        if music_track.cover_path:
+            music_track_cover_path = Path(music_track.cover_path)
+            music_track_cover_url = f"{base_url + URL_MUSIC_COVER + music_track_cover_path.name}"
+
+        else:
+            music_track_cover_url = None
+
         mime_type, _ = mimetypes.guess_type(music_track.path)
 
         music_track_list_json.append({
@@ -86,55 +89,32 @@ def get_music_track(track_id: str, db: SessionLocal) -> Track | None:
     return music_track
 
 
-def save_music_track(db: SessionLocal, file_binary: bytes) -> None:
-    """
-    Saves an uploaded music file into the file system and creates a corresponding Track entry in the database.
-
-    This function:
-        - Writes the MP3 file to disk.
-        - Extracts metadata such as title, artist, and duration.
-        - Saves cover art if available.
-        - Stores the track and cover in the database.
-
-    Args:
-        db (SessionLocal): The active SQLAlchemy database session.
-        file_binary (bytes): Binary content of the uploaded MP3 file.
-
-    Raises:
-        HeaderNotFoundError: If the uploaded file is not a valid MP3 file with proper headers.
-    """
+def save_music_track(
+        db: SessionLocal,
+        music_track_binary: bytes,
+        music_track_title: str | None = None,
+        music_track_artist: str | None = None,
+        music_track_cover_binary: bytes | None = None,
+):
     path_to_track_music = DIR_MUSIC / (str(uuid4()) + ".mp3")
     path_to_track_music_cover = DIR_MUSIC_COVER / (str(uuid4()) + ".jpg")
 
     with open(path_to_track_music, "wb") as file:
-        file.write(file_binary)
+        file.write(music_track_binary)
 
-    try:
-        audio = MP3(str(path_to_track_music), ID3=ID3)
-        audio_duration = int(audio.info.length)
-        audio_cover_base64 = get_mp3_cover_bytes(audio_obj=audio)
+    music_track_metadata = MusicTrackMetadata(
+        path_to_music_track=path_to_track_music,
+        music_track_title=music_track_title,
+        music_track_artist=music_track_artist,
+        music_track_cover_binary=music_track_cover_binary,
+    )
 
-    except HeaderNotFoundError:
-        audio = None
-        audio_duration = 0
-        audio_cover_base64 = None
-
-    # Save cover art to file system
-    if audio_cover_base64:
+    if music_track_metadata["cover_bytes"]:
         with open(path_to_track_music_cover, "wb") as file:
-                file.write(audio_cover_base64)
+            file.write(music_track_metadata["cover_bytes"])
 
     else:
         path_to_track_music_cover = None
-
-    # Extract metadata
-    if audio and audio.tags:
-        audio_title = audio.tags.get("TIT2", None)
-        audio_artist = audio.tags.get("TPE1", None)
-
-    else:
-        audio_title = None
-        audio_artist = None
 
     # Convert to relative paths for database storage
     path_to_track_music = get_relative_path(path_to_track_music)
@@ -144,11 +124,11 @@ def save_music_track(db: SessionLocal, file_binary: bytes) -> None:
 
     # Create Track object
     music = Track(
-        title=audio_title.text[0] if isinstance(audio_title, TIT2) else audio_title,
-        artist=audio_artist.text[0] if isinstance(audio_artist, TPE1) else audio_artist,
+        title=music_track_metadata["title"],
+        artist=music_track_metadata["artist"],
         path=path_to_track_music,
         cover_path=path_to_track_music_cover,
-        duration=audio_duration,
+        duration=music_track_metadata["audio_duration"],
     )
 
     db.add(music)

@@ -13,6 +13,7 @@ Routes:
 """
 
 import os
+from typing import Optional
 
 from fastapi import (
     APIRouter,
@@ -20,7 +21,8 @@ from fastapi import (
     File,
     Depends,
     Query,
-    Request
+    Request,
+    Form,
 )
 from fastapi.responses import (
     JSONResponse,
@@ -142,20 +144,31 @@ def music_track_get_stream(
 
 @router.post("/")
 def music_track_upload(
-    music_file: UploadFile = File(...),
-    db: Session = Depends(get_db)
+        db: Session = Depends(get_db),
+        music_track_file: UploadFile = File(...),
+        music_track_cover_file: Optional[UploadFile] = File(None),
+        music_track_title: Optional[str] = Form(None),
+        music_track_artist: Optional[str] = Form(None),
 ) -> Response:
     """
     Upload a new music file to the server.
 
     Args:
-        music_file (UploadFile): The music file to upload.
+        music_track_file (UploadFile): The music file to upload.
+        music_track_title (Optional[str]): The name of the new music track.
+        music_track_artist (Optional[str]): The author of the new music track.
+        music_track_cover_file (Optional[UploadFile]): The cover of the new music track.
         db (Session): SQLAlchemy database session dependency.
 
     Returns:
         Response: HTTP 200 OK on success.
     """
-    music_file_binary = music_file.file.read()
-    save_music_track(db=db, file_binary=music_file_binary)
+    save_music_track(
+        db=db,
+        music_track_binary=music_track_file.file.read(),
+        music_track_cover_binary=music_track_cover_file.file.read() if music_track_cover_file else None,
+        music_track_title=music_track_title,
+        music_track_artist=music_track_artist,
+    )
 
     return Response(status_code=200, content="OK")
