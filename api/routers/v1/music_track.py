@@ -42,7 +42,7 @@ from common.constants import DIR_DATA
 router = APIRouter(prefix="/tracks", tags=["tracks"])
 
 
-@router.get("/", response_model=MusicTrackListResponse)
+@router.get("", response_model=MusicTrackListResponse)
 def get_music_tracks_list(
     request: Request,
     skip: int = Query(0, alias="offset"),
